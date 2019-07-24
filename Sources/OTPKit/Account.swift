@@ -94,6 +94,7 @@ struct Account: Codable, Equatable {
     func save(to keychain: Keychain) throws {
         try keychain
             .label(label)
+            .comment("otp access token")
             .set(url.absoluteString, key: "url")
     }
     
