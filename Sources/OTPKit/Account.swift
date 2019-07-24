@@ -99,11 +99,9 @@ struct Account: Codable {
     /// - Parameter keychain
     static func load(from keychain: Keychain) throws -> [Account] {
         let items = keychain.allKeys()
-        let accounts = try items.map { key throws -> Account in
-            let urlString = try keychain.get(key)!
-            let url = URL(string: urlString)!
-            let account = Account(from: url)!
-            return account
+        let accounts = try items.compactMap { key throws -> Account? in
+            guard let urlString = try keychain.get(key), let url = URL(string: urlString) else { return nil }
+            return Account(from: url)
         }
         return accounts
     }
