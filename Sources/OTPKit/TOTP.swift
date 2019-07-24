@@ -8,11 +8,23 @@
 import Foundation
 
 struct TOTP: OTP {
-    var secret: Data
+    static let otpType: OTPType = .totp
+    let secret: Data
+    /// The period defines a period that a TOTP code will be valid for, in seconds.
     var period: UInt64 = 30
-    var count : UInt64 { return UInt64(NSDate().timeIntervalSince1970) / period }
+    var counter : UInt64 { return UInt64(NSDate().timeIntervalSince1970) / period }
     var algorithm: Algorithm = .sha1
     var digits: Int = 6
+    var urlQueryItems: [URLQueryItem] {
+        let items: [URLQueryItem] = [
+            URLQueryItem(name: "secret", value: secret.base32EncodedString.lowercased()),
+            URLQueryItem(name: "algorithm", value: algorithm.string),
+            URLQueryItem(name: "period", value: String(period)),
+            URLQueryItem(name: "digits", value: String(digits)),
+        ]
+        
+        return items
+    }
     
     init(algorithm: Algorithm = .sha1, secret: Data, digits: Int = 6, period: UInt64 = 30) {
         self.secret = secret

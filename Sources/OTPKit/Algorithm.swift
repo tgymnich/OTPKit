@@ -53,6 +53,8 @@ enum Algorithm: RawRepresentable, Hashable, Codable {
         }
     }
     
+    
+    /// Length of the digest
     var hashLength: Int {
         switch self {
         case .md5: return Int(CC_MD5_DIGEST_LENGTH)
@@ -61,6 +63,17 @@ enum Algorithm: RawRepresentable, Hashable, Codable {
         case .sha256: return Int(CC_SHA256_DIGEST_LENGTH)
         case .sha384: return Int(CC_SHA384_DIGEST_LENGTH)
         case .sha512: return Int(CC_SHA512_DIGEST_LENGTH)
+        }
+    }
+    
+    var string: String {
+        switch self {
+        case .md5: return "md5"
+        case .sha1: return "sha1"
+        case .sha224: return "sha224"
+        case .sha256: return "sha256"
+        case .sha384: return "sha384"
+        case .sha512: return "sha512"
         }
     }
     

@@ -10,15 +10,25 @@ import Base32
 
 
 struct HOTP: OTP {
-    var secret: Data
-    var count: UInt64 = 0
+    static let otpType: OTPType = .hotp
+    let secret: Data
+    var counter: UInt64 = 0
     var algorithm: Algorithm = .sha1
     var digits: Int = 6
+    var urlQueryItems: [URLQueryItem] {
+        let items: [URLQueryItem] = [
+        URLQueryItem(name: "secret", value: secret.base32EncodedString.lowercased()),
+        URLQueryItem(name: "algorithm", value: algorithm.string),
+        URLQueryItem(name: "counter", value: String(counter)),
+        URLQueryItem(name: "digits", value: String(digits)),
+    ]
+        return items
+    }
     
     init(algorithm: Algorithm = .sha1, secret: Data, digits: Int = 6, count: UInt64 = 0) {
         self.algorithm = algorithm
         self.secret = secret
-        self.count = count
+        self.counter = count
         self.digits = digits
     }
     
@@ -39,15 +49,13 @@ struct HOTP: OTP {
         }
         
         if let countString = query["counter"], let count = UInt64(countString) {
-            self.count = count
+            self.counter = count
         }
     }
     
     mutating func code() -> String {
-        defer { count += 1 }
-        return code(for: count)
+        defer { counter += 1 }
+        return code(for: counter)
     }
-    
-    
     
 }
