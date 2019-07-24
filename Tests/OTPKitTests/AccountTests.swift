@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import KeychainAccess
 @testable import OTPKit
 
 final class AccountTests: XCTestCase {
@@ -79,11 +80,20 @@ final class AccountTests: XCTestCase {
     }
     
     func testKeychainStore() {
+        let keychain = Keychain(service: "ch.gymni.test.otpauth")
+        let url = URL(string: "otpauth://totp/foo?secret=wew3k6ztd7kuh5ucg4pejqi4swwrrneh72ad2sdovikfatzbc5huto2j&algorithm=SHA256&digits=6&period=30")!
+        let totp = TOTP(algorithm: .sha256, secret: "wew3k6ztd7kuh5ucg4pejqi4swwrrneh72ad2sdovikfatzbc5huto2j".base32DecodedData! , digits: 6, period: 30)
+        let account = Account(label: "foo", otp: totp)
         
-    }
-    
-    func testKeychainLoad() {
+        XCTAssertNoThrow(try account.save(to: keychain))
+        defer {
+            try! keychain.removeAll()
+        }
         
+        let accounts = try? Account.load(from: keychain)
+        XCTAssertNotNil(accounts)
+        
+        XCTAssertEqual(accounts?.first, account)
     }
     
     static var allTests = [
@@ -93,7 +103,6 @@ final class AccountTests: XCTestCase {
         ("testAdvancedTOTPAccount", testAdvancedTOTPAccount),
         ("testURLGenerationBasic", testURLGenerationBasic),
         ("testKeychainStore", testKeychainStore),
-        ("testKeychainLoad", testKeychainLoad),
     ]
     
 }

@@ -8,7 +8,7 @@
 import Foundation
 import KeychainAccess
 
-struct Account: Codable {
+struct Account: Codable, Equatable {
     /// The label is used to identify which account a key is associated with
     var label: String
     /// OTP instance used by the account. Responsible for all cryptograhic operations.
@@ -74,6 +74,8 @@ struct Account: Codable {
         self.otp = otp
     }
     
+    // MARK: - Codable
+    
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let url = try container.decode(URL.self)
@@ -85,13 +87,14 @@ struct Account: Codable {
         try container.encode(url)
     }
     
+    // MARK: - Keychain
     
     /// Saves the account to a keychain
     /// - Parameter keychain
     func save(to keychain: Keychain) throws {
         try keychain
             .label(label)
-            .set(url.absoluteString, key: "otpauth")
+            .set(url.absoluteString, key: "url")
     }
     
     
@@ -104,6 +107,12 @@ struct Account: Codable {
             return Account(from: url)
         }
         return accounts
+    }
+    
+    // MARK: - Equatable
+    
+    static func == (lhs: Account, rhs: Account) -> Bool {
+        return lhs.url == rhs.url
     }
     
 }
