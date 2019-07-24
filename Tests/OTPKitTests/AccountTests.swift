@@ -90,7 +90,7 @@ final class AccountTests: XCTestCase {
             try! keychain.removeAll()
         }
         
-        let accounts = try? Account.load(from: keychain)
+        let accounts = try? Account.loadAll(from: keychain)
         XCTAssertNotNil(accounts)
         
         XCTAssertEqual(accounts?.first, account)

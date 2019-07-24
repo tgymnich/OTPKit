@@ -100,7 +100,7 @@ struct Account: Codable, Equatable {
     
     /// Loads all the accounts from a keychain
     /// - Parameter keychain
-    static func load(from keychain: Keychain) throws -> [Account] {
+    static func loadAll(from keychain: Keychain) throws -> [Account] {
         let items = keychain.allKeys()
         let accounts = try items.compactMap { key throws -> Account? in
             guard let urlString = try keychain.get(key), let url = URL(string: urlString) else { return nil }
