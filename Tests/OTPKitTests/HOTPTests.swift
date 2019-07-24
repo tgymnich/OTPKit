@@ -42,7 +42,7 @@ final class HOTPTests: XCTestCase {
         XCTAssertNotNil(hotp)
         XCTAssertEqual(hotp?.algorithm, Algorithm.sha256)
         XCTAssertEqual(hotp?.digits, 7)
-        XCTAssertEqual(hotp?.count, 34)
+        XCTAssertEqual(hotp?.counter, 34)
         XCTAssertEqual(hotp?.secret, "rk7xql2piogveotejq2ulv7d2aicbpzlh33xeaqnkqjck4iyz2cm6xzg".base32DecodedData!)
     }
     
