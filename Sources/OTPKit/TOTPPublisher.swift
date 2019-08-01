@@ -1,14 +1,12 @@
 //
-//  OTPPublisher.swift
-//  Base32
+//  TOTPPublisher.swift
+//  OTPKit
 //
 //  Created by Tim Gymnich on 7/25/19.
 //
 
 import Foundation
 import Combine
-
-
 
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension TOTP {
@@ -34,8 +32,7 @@ extension TOTP {
         private var totp: TOTP
         private lazy var timer: Timer = {
             let timeForNextPeriod = Date(timeIntervalSince1970: TimeInterval((totp.counter + 1) * totp.period))
-            let timer = Timer(fire: timeForNextPeriod, interval: TimeInterval(totp.period), repeats: true) { [weak self] timer in
-                guard let self = self else { return }
+            let timer = Timer(fire: timeForNextPeriod, interval: TimeInterval(totp.period), repeats: true) { timer in
                 _ = self.subscriber?.receive(self.totp.code())
             }
             timer.tolerance = 1
