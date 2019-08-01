@@ -8,7 +8,7 @@
 import Foundation
 import CommonCrypto
 
-enum OTPType: String, Codable, CaseIterable {
+public enum OTPType: String, Codable, CaseIterable {
     // Main purpose of this enum is to link a type string from a url to the Swift type implementing that OTP variant.
     
     // The type string as it would appear in the URL:
@@ -33,7 +33,7 @@ enum OTPType: String, Codable, CaseIterable {
     }
 }
 
-protocol OTP: Codable {
+public protocol OTP: Codable {
     /// Algorithm used to calculate the hash
     var algorithm: Algorithm { get }
     /// The secret is an arbitrary key value

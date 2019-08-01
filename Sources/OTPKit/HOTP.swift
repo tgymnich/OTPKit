@@ -9,13 +9,13 @@ import Foundation
 import Base32
 
 
-struct HOTP: OTP {
-    static let otpType: OTPType = .hotp
-    let secret: Data
-    var counter: UInt64 = 0
-    var algorithm: Algorithm = .sha1
-    var digits: Int = 6
-    var urlQueryItems: [URLQueryItem] {
+public struct HOTP: OTP {
+    public static let otpType: OTPType = .hotp
+    public let secret: Data
+    public var counter: UInt64 = 0
+    public var algorithm: Algorithm = .sha1
+    public var digits: Int = 6
+    public var urlQueryItems: [URLQueryItem] {
         let items: [URLQueryItem] = [
         URLQueryItem(name: "secret", value: secret.base32EncodedString.lowercased()),
         URLQueryItem(name: "algorithm", value: algorithm.string),
@@ -25,14 +25,14 @@ struct HOTP: OTP {
         return items
     }
     
-    init(algorithm: Algorithm = .sha1, secret: Data, digits: Int = 6, count: UInt64 = 0) {
+    public init(algorithm: Algorithm = .sha1, secret: Data, digits: Int = 6, count: UInt64 = 0) {
         self.algorithm = algorithm
         self.secret = secret
         self.counter = count
         self.digits = digits
     }
     
-    init?(from url: URL) {
+    public init?(from url: URL) {
         guard url.scheme == "otpauth", url.host == "hotp" else { return nil }
         
         guard let query = url.queryParameters else { return nil }
@@ -53,7 +53,7 @@ struct HOTP: OTP {
         }
     }
     
-    mutating func code() -> String {
+    public mutating func code() -> String {
         defer { counter += 1 }
         return code(for: counter)
     }

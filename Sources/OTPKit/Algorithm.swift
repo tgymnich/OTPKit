@@ -8,7 +8,7 @@
 import Foundation
 import CommonCrypto
 
-enum Algorithm: RawRepresentable, Hashable, Codable {
+public enum Algorithm: RawRepresentable, Hashable, Codable {
     case md5
     case sha1
     case sha224
@@ -16,9 +16,9 @@ enum Algorithm: RawRepresentable, Hashable, Codable {
     case sha384
     case sha512
     
-    typealias RawValue = CCHmacAlgorithm
+    public typealias RawValue = CCHmacAlgorithm
     
-    init?(rawValue: CCHmacAlgorithm) {
+    public init?(rawValue: CCHmacAlgorithm) {
         switch rawValue {
         case CCHmacAlgorithm(kCCHmacAlgMD5): self = .md5
         case CCHmacAlgorithm(kCCHmacAlgSHA1): self = .sha1
@@ -42,7 +42,7 @@ enum Algorithm: RawRepresentable, Hashable, Codable {
         }
     }
     
-    var rawValue: CCHmacAlgorithm {
+    public var rawValue: CCHmacAlgorithm {
         switch self {
         case .md5: return CCHmacAlgorithm(kCCHmacAlgMD5)
         case .sha1: return CCHmacAlgorithm(kCCHmacAlgSHA1)
@@ -55,7 +55,7 @@ enum Algorithm: RawRepresentable, Hashable, Codable {
     
     
     /// Length of the digest
-    var hashLength: Int {
+    public var hashLength: Int {
         switch self {
         case .md5: return Int(CC_MD5_DIGEST_LENGTH)
         case .sha1: return Int(CC_SHA1_DIGEST_LENGTH)
@@ -66,7 +66,7 @@ enum Algorithm: RawRepresentable, Hashable, Codable {
         }
     }
     
-    var string: String {
+    public var string: String {
         switch self {
         case .md5: return "md5"
         case .sha1: return "sha1"

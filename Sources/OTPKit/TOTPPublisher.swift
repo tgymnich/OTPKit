@@ -9,10 +9,10 @@ import Foundation
 import Combine
 
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-extension TOTP {
+public extension TOTP {
     struct TOTPPublisher: Publisher {
-        typealias Output = String
-        typealias Failure = Never
+        public typealias Output = String
+        public typealias Failure = Never
         
         var totp: TOTP
         
@@ -20,7 +20,7 @@ extension TOTP {
             self.totp = totp
         }
         
-        func receive<S>(subscriber: S) where S : Subscriber, TOTP.TOTPPublisher.Failure == S.Failure, TOTP.TOTPPublisher.Output == S.Input {
+        public func receive<S>(subscriber: S) where S : Subscriber, TOTP.TOTPPublisher.Failure == S.Failure, TOTP.TOTPPublisher.Output == S.Input {
             let subscription  = TOTPSubscription(subscriber: subscriber, totp: totp)
             subscriber.receive(subscription: subscription)
         }
@@ -45,11 +45,11 @@ extension TOTP {
             RunLoop.main.add(timer, forMode: .default)
         }
         
-        func request(_ demand: Subscribers.Demand) {
+        public func request(_ demand: Subscribers.Demand) {
             _ = subscriber?.receive(totp.code())
         }
         
-        func cancel() {
+        public func cancel() {
             self.timer.invalidate()
             self.subscriber = nil
         }

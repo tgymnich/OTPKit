@@ -7,15 +7,15 @@
 
 import Foundation
 
-class TOTP: OTP {
-    static let otpType: OTPType = .totp
-    let secret: Data
+public class TOTP: OTP {
+    public static let otpType: OTPType = .totp
+    public let secret: Data
     /// The period defines a period that a TOTP code will be valid for, in seconds.
-    var period: UInt64 = 30
-    var counter : UInt64 { return UInt64(NSDate().timeIntervalSince1970) / period }
-    var algorithm: Algorithm = .sha1
-    var digits: Int = 6
-    var urlQueryItems: [URLQueryItem] {
+    public var period: UInt64 = 30
+    public var counter : UInt64 { return UInt64(NSDate().timeIntervalSince1970) / period }
+    public var algorithm: Algorithm = .sha1
+    public var digits: Int = 6
+    public var urlQueryItems: [URLQueryItem] {
         let items: [URLQueryItem] = [
             URLQueryItem(name: "secret", value: secret.base32EncodedString.lowercased()),
             URLQueryItem(name: "algorithm", value: algorithm.string),
@@ -35,7 +35,7 @@ class TOTP: OTP {
             return timer
         }()
     
-    init(algorithm: Algorithm = .sha1, secret: Data, digits: Int = 6, period: UInt64 = 30) {
+    public init(algorithm: Algorithm = .sha1, secret: Data, digits: Int = 6, period: UInt64 = 30) {
         self.secret = secret
         self.period = period
         self.digits = digits
@@ -46,7 +46,7 @@ class TOTP: OTP {
         }
     }
     
-    required init?(from url: URL) {
+    public required init?(from url: URL) {
         guard url.scheme == "otpauth", url.host == "totp" else { return nil }
         
         guard let query = url.queryParameters else { return nil }
@@ -71,11 +71,11 @@ class TOTP: OTP {
         }
     }
     
-    func code() -> String {
+    public func code() -> String {
         return code(for: Date())
     }
     
-    func code(for date: Date) -> String {
+    public func code(for date: Date) -> String {
         let count = UInt64(date.timeIntervalSince1970) / period
         return code(for: count)
     }
@@ -88,12 +88,12 @@ class TOTP: OTP {
     
 }
 
-extension TOTP {
+public extension TOTP {
     enum UserInfoKeys: Hashable {
         case code
     }
 }
 
-extension Notification.Name {
+public extension Notification.Name {
     static let didGenerateNewOTPCode = Notification.Name("didGenerateNewOTPCode")
 }
