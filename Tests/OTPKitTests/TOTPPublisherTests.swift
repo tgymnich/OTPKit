@@ -24,6 +24,25 @@ class TOTPPublisherTests: XCTestCase {
         wait(for: [notificationReceived], timeout: TimeInterval(TOTPPublisherTests.period * 2))
     }
     
+    func testNotificationCenterCollect5Notifications() {
+        let recieved5Notifications = XCTestExpectation(description: "receive 5 notifications")
+        let totp = TOTP(algorithm: .sha256, secret: "01234567890".data(using: .ascii)!, digits: 6, period: 1)
+        var codes: [String] = [] {
+            didSet {
+                if codes.count == 5 {
+                    recieved5Notifications.fulfill()
+                }
+            }
+        }
+        NotificationCenter.default.addObserver(forName: .didGenerateNewOTPCode, object: totp, queue: .main) { notification in
+            let code = notification.userInfo?[TOTP.UserInfoKeys.code] as? String
+            XCTAssertNotNil(code)
+            XCTAssertEqual(code, totp.code())
+            codes.append(code!)
+        }
+        wait(for: [recieved5Notifications], timeout: TimeInterval(2 * 5))
+    }
+    
     @available(OSX 10.15, *)
     func testPublisher() {
         let notificationReceived = XCTestExpectation(description: "receive notification")
@@ -45,11 +64,12 @@ class TOTPPublisherTests: XCTestCase {
             XCTAssertEqual(codes.count, 5)
             received5Codes.fulfill()
         }
-        wait(for: [received5Codes], timeout: TimeInterval(2 * 5 * 2))
+        wait(for: [received5Codes], timeout: TimeInterval(2 * 5))
     }
     
     static var allTests = [
         ("testNotificationCenter", testNotificationCenter),
+        ("testNotificationCenterCollect5Notifications", testNotificationCenterCollect5Notifications),
     ]
     
 }

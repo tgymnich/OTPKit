@@ -22,7 +22,7 @@ final class AccountTests: XCTestCase {
     }
     
     func testAdvancedTOTPAccount() {
-        let url = URL(string: "otpauth://totp/www.example.com:foo?secret=avelj2f3hqxgbm5gi7rvrfskdvxnia72rt7kxwfa5l5yuisqfpjlezm5&algorithm=SHA256&digits=12&period=30&image=http%3A%2F%2Fwww.example.com%2Fimage")!
+        let url = URL(string: "otpauth://totp/www.example.com:foo?secret=avelj2f3hqxgbm5gi7rvrfskdvxnia72rt7kxwfa5l5yuisqfpjlezm5&algorithm=SHA256&digits=7&period=30&image=http%3A%2F%2Fwww.example.com%2Fimage")!
         
         let account = Account(from: url)
         
@@ -44,7 +44,7 @@ final class AccountTests: XCTestCase {
     }
     
     func testAdvancedHOTPAccount() {
-        let url = URL(string: "otpauth://hotp/www.example.com:foo?secret=vutgq34hz4fi4ljm2ycg6im6sd5pl6jmy4rihpvzaddliiqoi64gnquq&algorithm=SHA256&digits=12&counter=0&image=http%3A%2F%2Fwww.example.com%2Fimage")!
+        let url = URL(string: "otpauth://hotp/www.example.com:foo?secret=vutgq34hz4fi4ljm2ycg6im6sd5pl6jmy4rihpvzaddliiqoi64gnquq&algorithm=SHA256&digits=7&counter=0&image=http%3A%2F%2Fwww.example.com%2Fimage")!
         
         let account = Account(from: url)
         
