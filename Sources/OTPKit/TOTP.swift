@@ -24,7 +24,7 @@ class TOTP: OTP {
         ]
         return items
     }
-    @available(OSX 10.12, *)
+    @available(OSX 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)
     private lazy var timer: Timer = {
             let timeForNextPeriod = Date(timeIntervalSince1970: TimeInterval((counter + 1) * period))
             let timer = Timer(fire: timeForNextPeriod, interval: TimeInterval(period), repeats: true) { [weak self] timer in

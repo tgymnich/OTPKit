@@ -43,7 +43,7 @@ class TOTPPublisherTests: XCTestCase {
         wait(for: [recieved5Notifications], timeout: TimeInterval(2 * 5))
     }
     
-    @available(OSX 10.15, *)
+    @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     func testPublisher() {
         let notificationReceived = XCTestExpectation(description: "receive notification")
         let totp = TOTP(algorithm: .sha256, secret: "01234567890".data(using: .ascii)!, digits: 6, period: TOTPPublisherTests.period)
@@ -55,7 +55,7 @@ class TOTPPublisherTests: XCTestCase {
         wait(for: [notificationReceived], timeout: TimeInterval(TOTPPublisherTests.period * 2))
     }
     
-    @available(OSX 10.15, *)
+    @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     func testPublisherCollect5Codes() {
         let received5Codes = XCTestExpectation(description: "receive 5 otp codes")
         let totp = TOTP(algorithm: .sha256, secret: "01234567890".data(using: .ascii)!, digits: 6, period: 1)
