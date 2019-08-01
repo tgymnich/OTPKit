@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TOTP: OTP {
+class TOTP: OTP {
     static let otpType: OTPType = .totp
     let secret: Data
     /// The period defines a period that a TOTP code will be valid for, in seconds.
@@ -22,18 +22,31 @@ struct TOTP: OTP {
             URLQueryItem(name: "period", value: String(period)),
             URLQueryItem(name: "digits", value: String(digits)),
         ]
-        
         return items
     }
+    @available(OSX 10.12, *)
+    private lazy var timer: Timer = {
+            let timeForNextPeriod = Date(timeIntervalSince1970: TimeInterval((counter + 1) * period))
+            let timer = Timer(fire: timeForNextPeriod, interval: TimeInterval(period), repeats: true) { [weak self] timer in
+                guard let self = self else { return }
+                NotificationCenter.default.post(name: .didGenerateNewOTPCode, object: self, userInfo: [UserInfoKeys.code : self.code()])
+            }
+            timer.tolerance = 1
+            return timer
+        }()
     
     init(algorithm: Algorithm = .sha1, secret: Data, digits: Int = 6, period: UInt64 = 30) {
         self.secret = secret
         self.period = period
         self.digits = digits
         self.algorithm = algorithm
+        if #available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
+            RunLoop.main.add(timer, forMode: .default)
+            timer.fire()
+        }
     }
     
-    init?(from url: URL) {
+    required init?(from url: URL) {
         guard url.scheme == "otpauth", url.host == "totp" else { return nil }
         
         guard let query = url.queryParameters else { return nil }
@@ -52,7 +65,10 @@ struct TOTP: OTP {
         if let periodString = query["period"], let period = UInt64(periodString) {
             self.period = period
         }
-        
+        if #available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
+            RunLoop.main.add(timer, forMode: .default)
+            timer.fire()
+        }
     }
     
     func code() -> String {
@@ -64,4 +80,20 @@ struct TOTP: OTP {
         return code(for: count)
     }
     
+    deinit {
+        if #available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
+            timer.invalidate()
+        }
+    }
+    
+}
+
+extension TOTP {
+    enum UserInfoKeys: Hashable {
+        case code
+    }
+}
+
+extension Notification.Name {
+    static let didGenerateNewOTPCode = Notification.Name("didGenerateNewOTPCode")
 }
