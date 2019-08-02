@@ -60,7 +60,7 @@ public protocol OTP: Codable {
 
 extension OTP {
     
-    func code(for count: UInt64) -> String {
+    public func code(for count: UInt64) -> String {
         var hash = Data(count: algorithm.hashLength)
         var swappedCount = count.bigEndian
         let secretPointer = self.secret.withUnsafeBytes { ptr -> UnsafeRawPointer in
