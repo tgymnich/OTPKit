@@ -49,7 +49,7 @@ public protocol OTP: Codable {
     var urlQueryItems: [URLQueryItem] { get }
     
     /// Generate a one time password.
-    mutating func code() -> String
+    func code() -> String
     /// Generate a one time password for a specific counter value.
     func code(for count: UInt64) -> String
     

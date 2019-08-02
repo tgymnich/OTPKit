@@ -8,11 +8,11 @@
 import Foundation
 import KeychainAccess
 
-public struct Account: Codable, Equatable {
+public class Account: Codable, Equatable {
     /// The label is used to identify which account a key is associated with
     public var label: String
-    /// OTP instance used by the account. Responsible for all cryptograhic operations.
-    public var otp: OTP
+    /// OTP Generator instance used by the account. Responsible for all cryptograhic operations.
+    public var otpGenerator: OTP
     /// String identifying the provider or service managing that account
     public var issuer: String?
     /// URL refering to the image for the account.
@@ -21,10 +21,10 @@ public struct Account: Codable, Equatable {
     public var url: URL {
         let queryItemImageURL = URLQueryItem(name: "image", value: imageURL?.absoluteString)
         // otpauth://TYPE/ISSUER:LABEL?PARAMETERS
-        guard var components = URLComponents(string: "otpauth://\(type(of: otp).otpType)/\(issuer ?? "")\(issuer == nil ? "" : ":")\(label)") else {
+        guard var components = URLComponents(string: "otpauth://\(type(of: otpGenerator).otpType)/\(issuer ?? "")\(issuer == nil ? "" : ":")\(label)") else {
             fatalError("Error encoding URL")
         }
-        var queryItems = [queryItemImageURL] + otp.urlQueryItems
+        var queryItems = [queryItemImageURL] + otpGenerator.urlQueryItems
         // remove query items with no value (optional parameters)
         queryItems = queryItems.filter { $0.value != nil }
         components.queryItems = queryItems
@@ -38,7 +38,7 @@ public struct Account: Codable, Equatable {
     /// - Parameter imageURL: URL refering to the image for the account.
     public init(label: String, otp: OTP, issuer: String? = nil, imageURL: URL? = nil) {
         self.label = label
-        self.otp = otp
+        self.otpGenerator = otp
         self.issuer = issuer
         self.imageURL = imageURL
     }
@@ -71,12 +71,12 @@ public struct Account: Codable, Equatable {
         }
         
         guard let otp = OTPType(for: type)?.implementation.init(from: url) else { return nil }
-        self.otp = otp
+        self.otpGenerator = otp
     }
     
     // MARK: - Codable
     
-    public init(from decoder: Decoder) throws {
+    required public convenience init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let url = try container.decode(URL.self)
         self.init(from: url)!
