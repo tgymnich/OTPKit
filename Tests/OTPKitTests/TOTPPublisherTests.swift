@@ -48,9 +48,9 @@ class TOTPPublisherTests: XCTestCase {
         let notificationReceived = XCTestExpectation(description: "receive notification")
         let totp = TOTP(algorithm: .sha256, secret: "01234567890".data(using: .ascii)!, digits: 6, period: TOTPPublisherTests.period)
         let pub = TOTP.TOTPPublisher(totp: totp)
-        let sink = pub.sink { code in
-            XCTAssertEqual(code, totp.code())
-            notificationReceived.fulfill()
+            .sink { code in
+                XCTAssertEqual(code, totp.code())
+                notificationReceived.fulfill()
         }
         wait(for: [notificationReceived], timeout: TimeInterval(TOTPPublisherTests.period * 2))
     }
@@ -60,9 +60,9 @@ class TOTPPublisherTests: XCTestCase {
         let received5Codes = XCTestExpectation(description: "receive 5 otp codes")
         let totp = TOTP(algorithm: .sha256, secret: "01234567890".data(using: .ascii)!, digits: 6, period: 1)
         let pub = TOTP.TOTPPublisher(totp: totp)
-        let sink = pub.collect(5).sink { codes in
-            XCTAssertEqual(codes.count, 5)
-            received5Codes.fulfill()
+            .collect(5).sink { codes in
+                XCTAssertEqual(codes.count, 5)
+                received5Codes.fulfill()
         }
         wait(for: [received5Codes], timeout: TimeInterval(2 * 5))
     }
