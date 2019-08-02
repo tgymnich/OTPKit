@@ -8,31 +8,6 @@
 import Foundation
 import CommonCrypto
 
-public enum OTPType: String, Codable, CaseIterable {
-    // Main purpose of this enum is to link a type string from a url to the Swift type implementing that OTP variant.
-    
-    // The type string as it would appear in the URL:
-    // otpauth://TYPE/LABEL?PARAMETERS
-    case hotp = "hotp"
-    case totp = "totp"
-    
-    /// Type conforming to OTP that implements the OTPType
-    var implementation: OTP.Type {
-        switch self {
-        case .hotp: return HOTP.self
-        case .totp: return TOTP.self
-        }
-    }
-    
-    init?(for type: String) {
-        // There can only be one or zero matching types because strings in a string backed enum must be unique.
-        guard let matchingType = OTPType.allCases.filter({ $0.rawValue == type }).first else {
-            return nil
-        }
-        self = matchingType
-    }
-}
-
 public protocol OTP: Codable {
     /// Algorithm used to calculate the hash
     var algorithm: Algorithm { get }
@@ -44,12 +19,12 @@ public protocol OTP: Codable {
     var counter: UInt64 { get }
     
     /// Used to match the OTP type string in a URL to determine the matching swift type.
-    static var otpType: OTPType { get }
+    var typeIdentifier: String { get }
     /// Used by Account to URL encode the HOTP instance.
     var urlQueryItems: [URLQueryItem] { get }
     
     /// Generate a one time password.
-    mutating func code() -> String
+    func code() -> String
     /// Generate a one time password for a specific counter value.
     func code(for count: UInt64) -> String
     

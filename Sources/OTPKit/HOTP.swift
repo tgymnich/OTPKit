@@ -9,8 +9,8 @@ import Foundation
 import Base32
 
 
-public struct HOTP: OTP {
-    public static let otpType: OTPType = .hotp
+public class HOTP: OTP {
+    public let typeIdentifier: String = "hotp"
     public let secret: Data
     public var counter: UInt64 = 0
     public var algorithm: Algorithm = .sha1
@@ -32,7 +32,7 @@ public struct HOTP: OTP {
         self.digits = digits
     }
     
-    public init?(from url: URL) {
+    required public init?(from url: URL) {
         guard url.scheme == "otpauth", url.host == "hotp" else { return nil }
         
         guard let query = url.queryParameters else { return nil }
@@ -53,7 +53,7 @@ public struct HOTP: OTP {
         }
     }
     
-    public mutating func code() -> String {
+    public func code() -> String {
         defer { counter += 1 }
         return code(for: counter)
     }
