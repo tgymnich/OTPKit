@@ -13,7 +13,7 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/norio-nomura/Base32.git", from: "0.7.0"),
+        .package(url: "https://github.com/norio-nomura/Base32.git", from: "0.8.0"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.0"),
     ],
     targets: [
