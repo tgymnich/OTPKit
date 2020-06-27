@@ -18,7 +18,7 @@ final class AccountTests: XCTestCase {
         
         XCTAssertNotNil(account)
         XCTAssertEqual(account?.label, "foo")
-        XCTAssert(account?.otp is TOTP)
+        XCTAssert(account?.otpGenerator is TOTP)
     }
     
     func testAdvancedTOTPAccount() {
@@ -30,7 +30,7 @@ final class AccountTests: XCTestCase {
         XCTAssertEqual(account?.label, "foo")
         XCTAssertEqual(account?.issuer, "www.example.com")
         XCTAssertEqual(account?.imageURL, URL(string: "http://www.example.com/image")!)
-        XCTAssert(account?.otp is TOTP)
+        XCTAssert(account?.otpGenerator is TOTP)
     }
     
     func testBasicHOTPAccount() {
@@ -40,7 +40,7 @@ final class AccountTests: XCTestCase {
         
         XCTAssertNotNil(account)
         XCTAssertEqual(account?.label, "foo")
-        XCTAssert(account?.otp is HOTP)
+        XCTAssert(account?.otpGenerator is HOTP)
     }
     
     func testAdvancedHOTPAccount() {
@@ -52,7 +52,7 @@ final class AccountTests: XCTestCase {
         XCTAssertEqual(account?.label, "foo")
         XCTAssertEqual(account?.issuer, "www.example.com")
         XCTAssertEqual(account?.imageURL, URL(string: "http://www.example.com/image")!)
-        XCTAssert(account?.otp is HOTP)
+        XCTAssert(account?.otpGenerator is HOTP)
     }
     
     func testURLGenerationBasic() {
