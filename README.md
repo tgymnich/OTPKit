@@ -1,6 +1,6 @@
 # OTPKit  ![Swift](https://github.com/TG908/OTPKit/workflows/Swift/badge.svg)
 
-A little swift package to generate HOTP and TOTP tokens and save them to the keychain.
+A little swift package to generate HOTP and TOTP tokens and save them to the keychain. Featuring a combine publisher that publishes new tokens.
 
 # SwiftPM
 ```swift
