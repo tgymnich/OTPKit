@@ -19,10 +19,10 @@ let package = Package(
 ```
 
 # Features
-- Create TOTP and HOTP tokens
-- `NotificationCenter` notifications for current tokens
-- Combine Publisher for newly current tokens
-- Save and load accounts from Keychain
+- Create TOTP and HOTP tokens 🔑
+- `NotificationCenter` notifications for current tokens 📻
+- Combine Publisher for newly current tokens 📡
+- Save and load accounts from Keychain 🔒
 
 # Usage
 
