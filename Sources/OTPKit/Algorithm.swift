@@ -1,6 +1,5 @@
 //
 //  Algorithm.swift
-//  Base32
 //
 //  Created by Tim Gymnich on 7/18/19.
 //

@@ -32,7 +32,8 @@ public extension TOTP {
         private var totp: TOTP
         private lazy var timer: Timer = {
             let timeForNextPeriod = Date(timeIntervalSince1970: TimeInterval((totp.counter + 1) * totp.period))
-            let timer = Timer(fire: timeForNextPeriod, interval: TimeInterval(totp.period), repeats: true) { timer in
+            let timer = Timer(fire: timeForNextPeriod, interval: TimeInterval(totp.period), repeats: true) { [weak self] timer in
+                guard let self = self else { return }
                 _ = self.subscriber?.receive(self.totp.code())
             }
             timer.tolerance = 1

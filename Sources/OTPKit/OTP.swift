@@ -63,26 +63,25 @@ extension OTP {
     public func code(for count: UInt64) -> String {
         var hash = Data(count: algorithm.hashLength)
         var swappedCount = count.bigEndian
-        let secretPointer = self.secret.withUnsafeBytes { ptr -> UnsafeRawPointer in
-            return ptr.baseAddress!
-        }
-        
+
         // Perform HMAC
-        hash.withUnsafeMutableBytes { ptr in
-            CCHmac(algorithm.rawValue, secretPointer, secret.count, &swappedCount, MemoryLayout.size(ofValue: swappedCount), ptr.baseAddress!)
+        secret.withUnsafeBytes { secretPointer in
+            hash.withUnsafeMutableBytes { ptr in
+                CCHmac(algorithm.rawValue, secretPointer.baseAddress, secret.count, &swappedCount, MemoryLayout.size(ofValue: swappedCount), ptr.baseAddress!)
+            }
         }
-        
+
         // Mask the hash
         let offset = Int(hash[algorithm.hashLength - 1]) & 0x0f
-        
+
         let mask = hash.withUnsafeBytes { ptr -> UInt32 in
             let start = ptr.baseAddress!.advanced(by: offset).assumingMemoryBound(to: UInt32.self)
             return start.pointee.bigEndian & 0x7fffffff
         }
-        
+
         var divisor: UInt32 = 1
         for _ in 0..<digits { divisor *= 10 }
-        
+
         return String(format: String(format: "%%0%hhulu", digits), mask % divisor)
     }
 }

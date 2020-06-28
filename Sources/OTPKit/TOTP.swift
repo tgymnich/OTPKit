@@ -24,10 +24,11 @@ public class TOTP: OTP {
         ]
         return items
     }
+    
     @available(OSX 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)
     private lazy var timer: Timer = {
             let timeForNextPeriod = Date(timeIntervalSince1970: TimeInterval((counter + 1) * period))
-            let timer = Timer(fire: timeForNextPeriod, interval: TimeInterval(period), repeats: true) { [weak self] timer in
+            let timer = Timer(fire: timeForNextPeriod, interval: TimeInterval(period), repeats: true) { [weak self] _ in
                 guard let self = self else { return }
                 NotificationCenter.default.post(name: .didGenerateNewOTPCode, object: self, userInfo: [UserInfoKeys.code : self.code()])
             }
@@ -40,7 +41,7 @@ public class TOTP: OTP {
         self.period = period
         self.digits = digits
         self.algorithm = algorithm
-        if #available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
+        if #available(OSX 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *) {
             RunLoop.main.add(timer, forMode: .default)
             timer.fire()
         }
@@ -79,9 +80,9 @@ public class TOTP: OTP {
         let count = UInt64(date.timeIntervalSince1970) / period
         return code(for: count)
     }
-    
+
     deinit {
-        if #available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
+        if #available(OSX 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *) {
             timer.invalidate()
         }
     }
