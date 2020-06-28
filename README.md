@@ -16,7 +16,7 @@ let package = Package(
     .target(name: "MyTool", dependencies: ["OTPKit"]),
   ]
 )
-´´´
+```
 
 # Features
 - Create TOTP and HOTP tokens
@@ -34,7 +34,7 @@ let url = URL(string: "otpauth://totp/foo?secret=wew3k6ztd7kuh5ucg4pejqi4swwrrne
 let account = Account(from: url)
 
 print(account?.otpGenerator.code()) // Prints the TOTP code for the current time.
-´´´
+```
 
 ### Saving and loading of accounts from the Keychain
 ```swift
@@ -46,13 +46,13 @@ let account = Account(label: "foo", otp: totp)
 try account.save(to: keychain)
 
 let accounts = try? Account.loadAll(from: keychain)
-´´´
+```
 
 ### Deleting all accounts form keychain
 ```swift
 let keychain = Keychain(service: "ch.gymni.test.otpauth")
 try! keychain.removeAll()
-´´´
+```
 
 
 ## Generating TOTP codes
@@ -68,14 +68,14 @@ let code = totp.code(for: date)
 ```swift
 let totp = TOTP(algorithm: .sha256, secret: "01234567890".data(using: .ascii)!, digits: 6, period: 30)
 let code = totp.code()
-´´´
+```
 
 ### For a custom period
 ```swift
 let period: UInt64 = 1234
 let totp = TOTP(algorithm: .sha256, secret: "01234567890".data(using: .ascii)!, digits: 6, period: 30)
 let code = totp.code(for: period)
-´´´
+```
 
 ### Using NotificationCenter
 ```swift
@@ -83,7 +83,7 @@ let totp = TOTP(algorithm: .sha256, secret: "01234567890".data(using: .ascii)!, 
 NotificationCenter.default.addObserver(forName: .didGenerateNewOTPCode, object: totp, queue: .main) { notification in
    let code = notification.userInfo?[TOTP.UserInfoKeys.code] as? String
 }
-´´´
+```
 
 ### Using a Combine Publisher
 ```swift
@@ -92,4 +92,4 @@ let pub = TOTP.TOTPPublisher(totp: totp)
     .sink { code in
         print(code)
    }
-´´´
+```
