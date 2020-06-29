@@ -10,7 +10,7 @@ import Combine
 
 public struct TOTPToken {
     let code: String
-    let timeRemining: TimeInterval
+    let timeRemaining: TimeInterval
 }
 
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
@@ -41,7 +41,7 @@ public extension TOTP {
             let timer = Timer(fire: timeForNextPeriod, interval: TimeInterval(totp.period), repeats: true) { [weak self] timer in
                 guard let self = self else { return }
                 let timeRemaining = timer.fireDate.timeIntervalSince(Date())
-                let token = TOTPToken(code: self.totp.code(), timeRemining: timeRemaining)
+                let token = TOTPToken(code: self.totp.code(), timeRemaining: timeRemaining)
                 _ = self.subscriber?.receive(token)
             }
             timer.tolerance = 1
@@ -57,7 +57,7 @@ public extension TOTP {
         public func request(_ demand: Subscribers.Demand) {
             let timeForNextPeriod = Date(timeIntervalSince1970: TimeInterval((totp.counter + 1) * totp.period))
             let timeRemaining = timeForNextPeriod.timeIntervalSince(Date())
-            let token = TOTPToken(code: self.totp.code(), timeRemining: timeRemaining)
+            let token = TOTPToken(code: self.totp.code(), timeRemaining: timeRemaining)
             _ = subscriber?.receive(token)
         }
         
