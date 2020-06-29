@@ -28,9 +28,10 @@ public class TOTP: OTP {
     @available(OSX 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)
     private lazy var timer: Timer = {
             let timeForNextPeriod = Date(timeIntervalSince1970: TimeInterval((counter + 1) * period))
-            let timer = Timer(fire: timeForNextPeriod, interval: TimeInterval(period), repeats: true) { [weak self] timer in
+            let timer = Timer(fire: timeForNextPeriod, interval: TimeInterval(period), repeats: true) { [weak self] _ in
                 guard let self = self else { return }
-                let timeRemaining = timer.fireDate.timeIntervalSince(Date())
+                let timeForNextPeriod = Date(timeIntervalSince1970: TimeInterval((self.counter + 1) * self.period))
+                let timeRemaining = timeForNextPeriod.timeIntervalSince(Date())
                 NotificationCenter.default.post(name: .didGenerateNewOTPCode, object: self, userInfo: [UserInfoKeys.code : self.code(), UserInfoKeys.timeRemaining: timeRemaining])
             }
             timer.tolerance = 1
