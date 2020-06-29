@@ -10,7 +10,7 @@ import Combine
 
 public struct TOTPToken {
     let code: String
-    let timeRemining: TimeInterval
+    let timeRemaining: TimeInterval
 }
 
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
