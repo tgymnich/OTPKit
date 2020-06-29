@@ -21,7 +21,10 @@ public class Account: Codable, Equatable {
     public var url: URL {
         let queryItemImageURL = URLQueryItem(name: "image", value: imageURL?.absoluteString)
         // otpauth://TYPE/ISSUER:LABEL?PARAMETERS
-        guard var components = URLComponents(string: "otpauth://\(type(of: otpGenerator).otpType)/\(issuer ?? "")\(issuer == nil ? "" : ":")\(label)") else {
+        let otpType = type(of: otpGenerator).otpType.rawValue
+        let issuerString = issuer?.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed) ?? ""
+        guard let labelString = label.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed),
+              var components = URLComponents(string: "otpauth://\(otpType)/\(issuerString)\(issuerString == nil ? "" : ":")\(labelString)") else {
             fatalError("Error encoding URL")
         }
         var queryItems = [queryItemImageURL] + otpGenerator.urlQueryItems

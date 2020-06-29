@@ -55,13 +55,24 @@ final class AccountTests: XCTestCase {
         XCTAssert(account?.otpGenerator is HOTP)
     }
     
-    func testURLGenerationBasic() {
+    func testURLGenerationBasic1() {
         let totp = TOTP(algorithm: .sha1, secret: "ahkzlrgopti4qd2u5olxmj6dj6d3ag6zxddbutu6oaukrkuup2r7wklw".base32DecodedData!, digits: 6, period: 30)
         let account = Account(label: "foo", otp: totp)
         let expectedURL = URL(string: "otpauth://totp/foo?secret=ahkzlrgopti4qd2u5olxmj6dj6d3ag6zxddbutu6oaukrkuup2r7wklw&algorithm=sha1&digits=6&period=30")!
         let expectedCompontents = URLComponents(url: expectedURL, resolvingAgainstBaseURL: false)
         let urlComponents = URLComponents(url: account.url, resolvingAgainstBaseURL: false)
         
+        XCTAssertEqual(urlComponents?.queryParameters, expectedCompontents?.queryParameters)
+        XCTAssertEqual(urlComponents?.host, expectedCompontents?.host)
+        XCTAssertEqual(urlComponents?.scheme, expectedCompontents?.scheme)
+    }
+
+    func testURLGenerationBasic2() {
+        let account = Account(label: "foo bar", otp: TOTP(algorithm: .sha256, secret: "31234567890".data(using: .ascii)!, digits: 6, period: 30), issuer: "Google Mail", imageURL: nil)
+        let expectedURL = URL(string: "otpauth://totp/Google%20Mail:foo%20bar?secret=gmytemzugu3doobzga%3D%3D%3D%3D%3D%3D&algorithm=sha256&period=30&digits=6")!
+        let expectedCompontents = URLComponents(url: expectedURL, resolvingAgainstBaseURL: false)
+        let urlComponents = URLComponents(url: account.url, resolvingAgainstBaseURL: false)
+
         XCTAssertEqual(urlComponents?.queryParameters, expectedCompontents?.queryParameters)
         XCTAssertEqual(urlComponents?.host, expectedCompontents?.host)
         XCTAssertEqual(urlComponents?.scheme, expectedCompontents?.scheme)
@@ -101,7 +112,8 @@ final class AccountTests: XCTestCase {
         ("testAdvancedTOTPAccount", testAdvancedTOTPAccount),
         ("testBasicHOTPAccount", testBasicHOTPAccount),
         ("testAdvancedTOTPAccount", testAdvancedTOTPAccount),
-        ("testURLGenerationBasic", testURLGenerationBasic),
+        ("testURLGenerationBasic1", testURLGenerationBasic1),
+        ("testURLGenerationBasic2", testURLGenerationBasic2),
         ("testKeychainStore", testKeychainStore),
     ]
     
