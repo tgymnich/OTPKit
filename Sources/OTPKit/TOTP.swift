@@ -12,7 +12,7 @@ public class TOTP: OTP {
     public let secret: Data
     /// The period defines a period that a TOTP code will be valid for, in seconds.
     public var period: UInt64 = 30
-    public var counter : UInt64 { return UInt64(NSDate().timeIntervalSince1970) / period }
+    public var counter : UInt64 { return UInt64(Date().timeIntervalSince1970) / period }
     public var algorithm: Algorithm = .sha1
     public var digits: Int = 6
     public var urlQueryItems: [URLQueryItem] {
@@ -28,9 +28,10 @@ public class TOTP: OTP {
     @available(OSX 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)
     private lazy var timer: Timer = {
             let timeForNextPeriod = Date(timeIntervalSince1970: TimeInterval((counter + 1) * period))
-            let timer = Timer(fire: timeForNextPeriod, interval: TimeInterval(period), repeats: true) { [weak self] _ in
+            let timer = Timer(fire: timeForNextPeriod, interval: TimeInterval(period), repeats: true) { [weak self] timer in
                 guard let self = self else { return }
-                NotificationCenter.default.post(name: .didGenerateNewOTPCode, object: self, userInfo: [UserInfoKeys.code : self.code()])
+                let timeRemaining = timer.fireDate.timeIntervalSince(Date())
+                NotificationCenter.default.post(name: .didGenerateNewOTPCode, object: self, userInfo: [UserInfoKeys.code : self.code(), UserInfoKeys.timeRemaining: timeRemaining])
             }
             timer.tolerance = 1
             return timer
@@ -92,6 +93,7 @@ public class TOTP: OTP {
 public extension TOTP {
     enum UserInfoKeys: Hashable {
         case code
+        case timeRemaining
     }
 }
 
