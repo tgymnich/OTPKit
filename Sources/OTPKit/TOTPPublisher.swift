@@ -14,8 +14,8 @@ public extension TOTP {
     var publisher: TOTPPublisher { TOTPPublisher(totp: self) }
 
     struct TOTPToken {
-        let code: String
-        let timeRemaining: TimeInterval
+        public let code: String
+        public let timeRemaining: TimeInterval
     }
 
     struct TOTPPublisher: Publisher {
