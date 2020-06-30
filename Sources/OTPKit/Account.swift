@@ -8,7 +8,7 @@
 import Foundation
 import KeychainAccess
 
-public class Account: Codable, Equatable {
+public class Account: Codable, Equatable, Identifiable {
     /// The label is used to identify which account a key is associated with
     public var label: String
     /// OTP Generator instance used by the account. Responsible for all cryptograhic operations.
