@@ -8,15 +8,17 @@
 import Foundation
 import KeychainAccess
 
-public class Account: Codable, Equatable, Identifiable {
+public struct Account: Codable, Equatable, Identifiable {
+    private let keychainKey: String
     /// The label is used to identify which account a key is associated with
-    public var label: String
+    public let id = UUID()
+    public let label: String
     /// OTP Generator instance used by the account. Responsible for all cryptograhic operations.
-    public var otpGenerator: OTP
+    public let otpGenerator: OTP
     /// String identifying the provider or service managing that account
-    public var issuer: String?
+    public let issuer: String?
     /// URL refering to the image for the account.
-    public var imageURL: URL?
+    public let imageURL: URL?
     /// All the account information encoded in a otpauth URL
     public var url: URL {
         let queryItemImageURL = URLQueryItem(name: "image", value: imageURL?.absoluteString)
@@ -33,6 +35,10 @@ public class Account: Codable, Equatable, Identifiable {
         components.queryItems = queryItems
         return components.url!
     }
+
+    public enum AccountError: LocalizedError {
+        case accountAlreadyExists
+    }
     
     
     /// - Parameter label: The label is used to identify which account a key is associated with. It contains an account name, which is a URI-encoded string, optionally prefixed by an issuer string identifying the provider or service managing that account. This issuer prefix can be used to prevent collisions between different accounts with different providers that might be identified using the same account name, e.g. the user's email address.
@@ -44,6 +50,12 @@ public class Account: Codable, Equatable, Identifiable {
         self.otpGenerator = otp
         self.issuer = issuer
         self.imageURL = imageURL
+
+        if let issuer = issuer {
+            self.keychainKey = "\(issuer)-\(label)"
+        } else {
+            self.keychainKey = "\(label)"
+        }
     }
     
     
@@ -51,7 +63,6 @@ public class Account: Codable, Equatable, Identifiable {
     /// - Parameter url: A url encoded like this: otpauth://TYPE/ISSUER:LABEL?PARAMETERS
     public init?(from url: URL) {
         // otpauth://TYPE/LABEL?PARAMETERS
-        
         guard url.scheme == "otpauth" else { return nil }
         
         guard let type = url.host else {
@@ -60,26 +71,31 @@ public class Account: Codable, Equatable, Identifiable {
         
         let components = url.pathComponents.dropFirst().first?.split(separator: ":")
         
-        guard let label = components?.last else {
-            return nil
+        guard let labelComponent = components?.last else { return nil }
+        let label = String(labelComponent)
+
+        let issuer: String?
+        if let issuerComponent = components?.dropLast().last {
+            issuer = String(issuerComponent)
+        } else {
+            issuer = nil
         }
-        self.label = String(label)
-        
-        if let issuer = components?.dropLast().last {
-            self.issuer = String(issuer)
-        }
-        
+
+        let imageURL: URL?
         if let imageURLString = url.queryParameters?["image"] {
-            self.imageURL = URL(string: imageURLString)
+            imageURL = URL(string: imageURLString)
+        } else {
+            imageURL = nil
         }
         
         guard let otp = OTPType(for: type)?.implementation.init(from: url) else { return nil }
-        self.otpGenerator = otp
+
+        self.init(label: label, otp: otp, issuer: issuer, imageURL: imageURL)
     }
     
     // MARK: - Codable
     
-    required public convenience init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let url = try container.decode(URL.self)
         self.init(from: url)!
@@ -95,18 +111,17 @@ public class Account: Codable, Equatable, Identifiable {
     /// Saves the account to a keychain
     /// - Parameter keychain
     public func save(to keychain: Keychain) throws {
-        if let issuer = issuer {
-            let key = "\(issuer) (\(label))"
-            try keychain
-                .label(key)
-                .comment("otp access token")
-                .set(url.absoluteString, key: key)
-        } else {
-            try keychain
-                .label(label)
-                .comment("otp access token")
-                .set(url.absoluteString, key: label)
-        }
+
+        guard (try? keychain.get(keychainKey)) == nil else { throw AccountError.accountAlreadyExists }
+
+        try keychain
+            .label(label)
+            .comment("otp access token")
+            .set(url.absoluteString, key: keychainKey)
+    }
+
+    public func remove(from keychain: Keychain) throws {
+        try keychain.remove(keychainKey)
     }
     
     
@@ -122,7 +137,7 @@ public class Account: Codable, Equatable, Identifiable {
     }
     
     // MARK: - Equatable
-    
+
     public static func == (lhs: Account, rhs: Account) -> Bool {
         return lhs.url == rhs.url
     }
