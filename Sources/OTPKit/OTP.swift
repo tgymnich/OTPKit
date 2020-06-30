@@ -26,9 +26,7 @@ public enum OTPType: String, Codable, CaseIterable {
     
     init?(for type: String) {
         // There can only be one or zero matching types because strings in a string backed enum must be unique.
-        guard let matchingType = OTPType.allCases.filter({ $0.rawValue == type }).first else {
-            return nil
-        }
+        guard let matchingType = OTPType.allCases.filter({ $0.rawValue == type }).first else { return nil }
         self = matchingType
     }
 }
