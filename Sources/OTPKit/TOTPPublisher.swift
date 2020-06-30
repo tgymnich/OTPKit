@@ -22,7 +22,7 @@ public extension TOTP {
         public typealias Output = TOTPToken
         public typealias Failure = Never
         
-        var totp: TOTP
+        let totp: TOTP
         
         public init(totp: TOTP) {
             self.totp = totp
@@ -37,7 +37,7 @@ public extension TOTP {
     
     class TOTPSubscription<SubscriberType: Subscriber>: Subscription where SubscriberType.Input == TOTPToken {
         private var subscriber: SubscriberType?
-        private var totp: TOTP
+        private let totp: TOTP
         private lazy var timer: Timer = {
             let timeForNextPeriod = Date(timeIntervalSince1970: TimeInterval((totp.counter + 1) * totp.period))
             let timer = Timer(fire: timeForNextPeriod, interval: TimeInterval(totp.period), repeats: true) { [weak self] _ in

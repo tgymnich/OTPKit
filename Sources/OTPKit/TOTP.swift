@@ -7,14 +7,16 @@
 
 import Foundation
 
-public class TOTP: OTP {
+public final class TOTP: OTP {
     public static let otpType: OTPType = .totp
+
     public let secret: Data
     /// The period defines a period that a TOTP code will be valid for, in seconds.
-    public var period: UInt64 = 30
+    public let period: UInt64
+    public let algorithm: Algorithm
+    public let digits: Int
+
     public var counter : UInt64 { return UInt64(Date().timeIntervalSince1970) / period }
-    public var algorithm: Algorithm = .sha1
-    public var digits: Int = 6
     public var urlQueryItems: [URLQueryItem] {
         let items: [URLQueryItem] = [
             URLQueryItem(name: "secret", value: secret.base32EncodedString.lowercased()),
@@ -38,40 +40,41 @@ public class TOTP: OTP {
             return timer
         }()
     
-    public init(algorithm: Algorithm = .sha1, secret: Data, digits: Int = 6, period: UInt64 = 30) {
+    public init(algorithm: Algorithm? = nil, secret: Data, digits: Int? = nil, period: UInt64? = nil) {
         self.secret = secret
-        self.period = period
-        self.digits = digits
-        self.algorithm = algorithm
+        self.period = period ?? 30
+        self.digits = digits ?? 6
+        self.algorithm = algorithm ?? .sha1
+
         if #available(OSX 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *) {
             RunLoop.main.add(timer, forMode: .default)
             timer.fire()
         }
     }
     
-    public required init?(from url: URL) {
+    public required convenience init?(from url: URL) {
         guard url.scheme == "otpauth", url.host == "totp" else { return nil }
         
         guard let query = url.queryParameters else { return nil }
-        
-        if let algorithmString = query["algorithm"], let algorithm = Algorithm(from: algorithmString) {
-            self.algorithm = algorithm
+
+        var algorithm: Algorithm?
+        if let algorithmString = query["algorithm"] {
+            algorithm = Algorithm(from: algorithmString)
         }
         
         guard let secret = query["secret"]?.base32DecodedData, secret.count != 0 else { return nil }
-        self.secret = secret
-        
-        if let digitsString = query["digits"], let digits = Int(digitsString), digits >= 6 {
-            self.digits = digits
+
+        var digits: Int?
+        if let digitsString = query["digits"], let value = Int(digitsString), value >= 6 {
+            digits = value
         }
-        
-        if let periodString = query["period"], let period = UInt64(periodString) {
-            self.period = period
+
+        var period: UInt64?
+        if let periodString = query["period"] {
+            period = UInt64(periodString)
         }
-        if #available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
-            RunLoop.main.add(timer, forMode: .default)
-            timer.fire()
-        }
+
+        self.init(algorithm: algorithm, secret: secret, digits: digits, period: period)
     }
     
     public func code() -> String {
