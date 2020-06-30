@@ -9,12 +9,14 @@ import Foundation
 import Base32
 
 
-public class HOTP: OTP {
+public final class HOTP: OTP {
     public static let otpType: OTPType = .hotp
+
     public let secret: Data
+    public let algorithm: Algorithm
+    public let digits: Int
+
     public var counter: UInt64 = 0
-    public var algorithm: Algorithm = .sha1
-    public var digits: Int = 6
     public var urlQueryItems: [URLQueryItem] {
         let items: [URLQueryItem] = [
         URLQueryItem(name: "secret", value: secret.base32EncodedString.lowercased()),
@@ -25,32 +27,36 @@ public class HOTP: OTP {
         return items
     }
     
-    public init(algorithm: Algorithm = .sha1, secret: Data, digits: Int = 6, count: UInt64 = 0) {
-        self.algorithm = algorithm
+    public init(algorithm: Algorithm? = nil, secret: Data, digits: Int? = nil, count: UInt64? = nil) {
+        self.algorithm = algorithm ?? .sha1
         self.secret = secret
-        self.counter = count
-        self.digits = digits
+        self.counter = count ?? 0
+        self.digits = digits ?? 6
     }
     
-    required public init?(from url: URL) {
+    required public convenience init?(from url: URL) {
         guard url.scheme == "otpauth", url.host == "hotp" else { return nil }
         
         guard let query = url.queryParameters else { return nil }
-        
-        if let algorithmString = query["algorithm"], let algorithm = Algorithm(from: algorithmString) {
-            self.algorithm = algorithm
+
+        var algorithm: Algorithm?
+        if let algorithmString = query["algorithm"] {
+            algorithm = Algorithm(from: algorithmString)
         }
         
         guard let secret = query["secret"]?.base32DecodedData, secret.count != 0 else { return nil }
-        self.secret = secret
-        
-        if let digitsString = query["digits"], let digits = Int(digitsString), digits >= 6 {
-            self.digits = digits
+
+        var digits: Int?
+        if let digitsString = query["digits"], let value = Int(digitsString), value >= 6 {
+            digits = value
         }
-        
-        if let countString = query["counter"], let count = UInt64(countString) {
-            self.counter = count
+
+        var count: UInt64?
+        if let countString = query["counter"] {
+            count = UInt64(countString) ?? 0
         }
+
+        self.init(algorithm: algorithm, secret: secret, digits: digits, count: count)
     }
     
     public func code() -> String {
