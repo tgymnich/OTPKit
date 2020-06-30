@@ -105,6 +105,24 @@ final class AccountTests: XCTestCase {
         
         XCTAssertEqual(accounts?.first, account)
     }
+
+    func testKeychainStoreMultiple() {
+        defer { try! keychain.removeAll() }
+        let keychain = Keychain(service: "ch.gymni.test.otpauth")
+        let totp1 = TOTP(algorithm: .sha256, secret: "wew3k6ztd7kuh5ucg4pejqi4swwrrneh72ad2sdovikfatzbc5huto2j".base32DecodedData! , digits: 6, period: 30)
+        let totp2 = TOTP(algorithm: .sha256, secret: "qviv43vxiznz2l3bzbhz72mbukyqa3qxktpnhnbr7cfcihjxrdikbjbm".base32DecodedData! , digits: 6, period: 15)
+        let account1 = Account(label: "foo1", otp: totp1)
+        let account2 = Account(label: "foo2", otp: totp2)
+
+        XCTAssertNoThrow(try account1.save(to: keychain))
+        XCTAssertNoThrow(try account2.save(to: keychain))
+
+        let accounts = try? Account.loadAll(from: keychain)
+        XCTAssertNotNil(accounts)
+
+        XCTAssertEqual(accounts?.first, account1)
+        XCTAssertEqual(accounts?.last, account2)
+    }
     
     static var allTests = [
         ("testBasicTOTPAccount", testBasicTOTPAccount),
@@ -114,6 +132,7 @@ final class AccountTests: XCTestCase {
         ("testURLGenerationBasic1", testURLGenerationBasic1),
         ("testURLGenerationBasic2", testURLGenerationBasic2),
         ("testKeychainStore", testKeychainStore),
+        ("testKeychainStoreMultiple", testKeychainStoreMultiple)
     ]
     
 }
