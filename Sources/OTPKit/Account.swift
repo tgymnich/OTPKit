@@ -96,10 +96,11 @@ public class Account: Codable, Equatable, Identifiable {
     /// - Parameter keychain
     public func save(to keychain: Keychain) throws {
         if let issuer = issuer {
+            let key = "\(issuer) (\(label))"
             try keychain
-                .label("\(issuer) (\(label))")
+                .label(key)
                 .comment("otp access token")
-                .set(url.absoluteString, key: label)
+                .set(url.absoluteString, key: key)
         } else {
             try keychain
                 .label(label)
