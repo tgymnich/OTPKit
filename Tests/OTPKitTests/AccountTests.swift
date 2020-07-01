@@ -88,18 +88,35 @@ final class AccountTests: XCTestCase {
     
     func testKeychainStore() {
         let keychain = Keychain(service: "ch.gymni.test.otpauth")
+        defer { try! keychain.removeAll() }
         let totp = TOTP(algorithm: .sha256, secret: "wew3k6ztd7kuh5ucg4pejqi4swwrrneh72ad2sdovikfatzbc5huto2j".base32DecodedData! , digits: 6, period: 30)
         let account = Account(label: "foo", otp: totp)
         
         XCTAssertNoThrow(try account.save(to: keychain))
-        defer {
-            try! keychain.removeAll()
-        }
-        
+
         let accounts = try? Account<TOTP>.loadAll(from: keychain)
         XCTAssertNotNil(accounts)
         
         XCTAssertEqual(accounts?.first, account)
+    }
+
+    func testKeychainRemove() {
+        let keychain = Keychain(service: "ch.gymni.test.otpauth")
+        defer { try! keychain.removeAll() }
+        let totp = TOTP(algorithm: .sha256, secret: "wew3k6ztd7kuh5ucg4pejqi4swwrrneh72ad2sdovikfatzbc5huto2j".base32DecodedData! , digits: 6, period: 30)
+        let account = Account(label: "foo", otp: totp)
+
+        XCTAssertNoThrow(try account.save(to: keychain))
+
+        var accounts = try? Account<TOTP>.loadAll(from: keychain)
+        XCTAssertNotNil(accounts)
+        XCTAssertEqual(accounts?.first, account)
+
+        XCTAssertNoThrow(try account.remove(from: keychain))
+
+        accounts = try? Account<TOTP>.loadAll(from: keychain)
+        XCTAssertNotNil(accounts)
+        XCTAssert(accounts!.isEmpty)
     }
 
     func testKeychainStoreMultiple() {
@@ -128,6 +145,7 @@ final class AccountTests: XCTestCase {
         ("testURLGenerationBasic1", testURLGenerationBasic1),
         ("testURLGenerationBasic2", testURLGenerationBasic2),
         ("testKeychainStore", testKeychainStore),
+        ("testKeychainRemove", testKeychainRemove),
         ("testKeychainStoreMultiple", testKeychainStoreMultiple)
     ]
     
