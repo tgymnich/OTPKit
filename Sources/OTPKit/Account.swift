@@ -8,13 +8,13 @@
 import Foundation
 import KeychainAccess
 
-public struct Account: Codable, Equatable, Identifiable {
+public struct Account<OTPType: OTP>: Codable, Equatable, Identifiable {
     private let keychainKey: String
     /// The label is used to identify which account a key is associated with
     public let id = UUID()
     public let label: String
     /// OTP Generator instance used by the account. Responsible for all cryptograhic operations.
-    public let otpGenerator: OTP
+    public let otpGenerator: OTPType
     /// String identifying the provider or service managing that account
     public let issuer: String?
     /// URL refering to the image for the account.
@@ -23,10 +23,9 @@ public struct Account: Codable, Equatable, Identifiable {
     public var url: URL {
         let queryItemImageURL = URLQueryItem(name: "image", value: imageURL?.absoluteString)
         // otpauth://TYPE/ISSUER:LABEL?PARAMETERS
-        let otpType = type(of: otpGenerator).otpType.rawValue
         let issuerString = issuer?.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed) ?? ""
         guard let labelString = label.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed),
-              var components = URLComponents(string: "otpauth://\(otpType)/\(issuerString)\(issuerString.isEmpty ? "" : ":")\(labelString)") else {
+              var components = URLComponents(string: "otpauth://\(OTPType.typeString)/\(issuerString)\(issuerString.isEmpty ? "" : ":")\(labelString)") else {
             fatalError("Error encoding URL")
         }
         var queryItems = [queryItemImageURL] + otpGenerator.urlQueryItems
@@ -45,7 +44,7 @@ public struct Account: Codable, Equatable, Identifiable {
     /// - Parameter otp: OTP instance used by this account.
     /// - Parameter issuer: The issuer parameter is a string value indicating the provider or service this account is associated with, URL-encoded according to RFC 3986. If the issuer parameter is absent, issuer information may be taken from the issuer prefix of the label. If both issuer parameter and issuer label prefix are present, they should be equal.
     /// - Parameter imageURL: URL refering to the image for the account.
-    public init(label: String, otp: OTP, issuer: String? = nil, imageURL: URL? = nil) {
+    public init(label: String, otp: OTPType, issuer: String? = nil, imageURL: URL? = nil) {
         self.label = label
         self.otpGenerator = otp
         self.issuer = issuer
@@ -88,7 +87,7 @@ public struct Account: Codable, Equatable, Identifiable {
             imageURL = nil
         }
         
-        guard let otp = OTPType(for: type)?.implementation.init(from: url) else { return nil }
+        guard let otp = OTPType(from: url) else { return nil }
 
         self.init(label: label, otp: otp, issuer: issuer, imageURL: imageURL)
     }

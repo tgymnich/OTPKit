@@ -8,7 +8,7 @@
 import Foundation
 
 public final class TOTP: OTP {
-    public static let otpType: OTPType = .totp
+    public static let typeString = "totp"
 
     public let secret: Data
     /// The period defines a period that a TOTP code will be valid for, in seconds.

@@ -10,7 +10,7 @@ import Base32
 
 
 public final class HOTP: OTP {
-    public static let otpType: OTPType = .hotp
+    public static let typeString = "hotp"
 
     public let secret: Data
     public let algorithm: Algorithm
