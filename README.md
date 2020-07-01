@@ -31,7 +31,7 @@ let package = Package(
 ### Creating an Account from an URL
 ```swift
 let url = URL(string: "otpauth://totp/foo?secret=wew3k6ztd7kuh5ucg4pejqi4swwrrneh72ad2sdovikfatzbc5huto2j&algorithm=SHA256&digits=6&period=30")!
-let account = Account(from: url)
+let account = Account<TOTP>(from: url)
 
 print(account?.otpGenerator.code()) // Prints the TOTP code for the current time.
 ```
@@ -48,7 +48,7 @@ try account.save(to: keychain)
 let accounts = try? Account.loadAll(from: keychain)
 ```
 
-### Deleting all accounts form keychain
+### Deleting all accounts from keychain
 ```swift
 let keychain = Keychain(service: "ch.gymni.test.otpauth")
 try! keychain.removeAll()
