@@ -69,18 +69,14 @@ public struct Account<OTPType: OTP>: Codable, Equatable, Identifiable {
         guard let labelComponent = components?.last else { return nil }
         let label = String(labelComponent)
 
-        let issuer: String?
+        var issuer: String?
         if let issuerComponent = components?.dropLast().last {
             issuer = String(issuerComponent)
-        } else {
-            issuer = nil
         }
 
-        let imageURL: URL?
+        var imageURL: URL?
         if let imageURLString = url.queryParameters?["image"] {
             imageURL = URL(string: imageURLString)
-        } else {
-            imageURL = nil
         }
         
         guard let otp = OTPType(from: url) else { return nil }
