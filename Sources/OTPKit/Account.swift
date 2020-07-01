@@ -63,11 +63,7 @@ public struct Account<OTPType: OTP>: Codable, Equatable, Identifiable {
     public init?(from url: URL) {
         // otpauth://TYPE/LABEL?PARAMETERS
         guard url.scheme == "otpauth" else { return nil }
-        
-        guard let type = url.host else {
-            return nil
-        }
-        
+                
         let components = url.pathComponents.dropFirst().first?.split(separator: ":")
         
         guard let labelComponent = components?.last else { return nil }
