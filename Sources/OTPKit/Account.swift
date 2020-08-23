@@ -32,7 +32,7 @@ public struct Account<OTPType: OTP>: Codable, Hashable, Identifiable {
         // remove query items with no value (optional parameters)
         queryItems = queryItems.filter { $0.value != nil }
         components.queryItems = queryItems
-        return components.url!.standardized
+        return components.url!
     }
 
     public enum AccountError: LocalizedError {
