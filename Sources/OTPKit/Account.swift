@@ -11,7 +11,7 @@ import KeychainAccess
 public struct Account<OTPType: OTP>: Codable, Hashable, Identifiable {
     private let keychainKey: String
     /// The label is used to identify which account a key is associated with
-    public var id: URL { url.standardized }
+    public var id: URL { url }
     public let label: String
     /// OTP Generator instance used by the account. Responsible for all cryptograhic operations.
     public let otpGenerator: OTPType
