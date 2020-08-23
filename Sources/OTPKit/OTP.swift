@@ -8,7 +8,7 @@
 import Foundation
 import CommonCrypto
 
-public protocol OTP: Codable {
+public protocol OTP: Codable, Hashable {
     /// Algorithm used to calculate the hash
     var algorithm: Algorithm { get }
     /// The secret is an arbitrary key value

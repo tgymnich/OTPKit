@@ -76,7 +76,7 @@ public final class TOTP: OTP {
 
         self.init(algorithm: algorithm, secret: secret, digits: digits, period: period)
     }
-    
+
     public func code() -> String {
         return code(for: Date())
     }
@@ -90,6 +90,21 @@ public final class TOTP: OTP {
         if #available(OSX 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *) {
             timer.invalidate()
         }
+    }
+
+    // MARK: Equatable
+
+    public static func ==(lhs: TOTP, rhs: TOTP) -> Bool {
+        return lhs.secret == rhs.secret && lhs.algorithm == rhs.algorithm && lhs.digits == rhs.digits && lhs.period == rhs.period
+    }
+
+    // MARK: Hashable
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(secret)
+        hasher.combine(algorithm)
+        hasher.combine(digits)
+        hasher.combine(period)
     }
     
 }

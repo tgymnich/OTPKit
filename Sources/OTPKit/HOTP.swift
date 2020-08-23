@@ -63,5 +63,19 @@ public final class HOTP: OTP {
         defer { counter += 1 }
         return code(for: counter)
     }
+
+    // MARK: Equatable
+
+    public static func ==(lhs: HOTP, rhs: HOTP) -> Bool {
+        return lhs.secret == rhs.secret && lhs.algorithm == rhs.algorithm && lhs.digits == rhs.digits
+    }
+
+    // MARK: Hashable
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(secret)
+        hasher.combine(algorithm)
+        hasher.combine(digits)
+    }
     
 }

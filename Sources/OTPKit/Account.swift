@@ -8,7 +8,7 @@
 import Foundation
 import KeychainAccess
 
-public struct Account<OTPType: OTP>: Codable, Equatable, Identifiable {
+public struct Account<OTPType: OTP>: Codable, Hashable, Identifiable {
     private let keychainKey: String
     /// The label is used to identify which account a key is associated with
     public let id = UUID()
