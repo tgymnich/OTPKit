@@ -11,7 +11,7 @@ import KeychainAccess
 public struct Account<OTPType: OTP>: Codable, Hashable, Identifiable {
     private let keychainKey: String
     /// The label is used to identify which account a key is associated with
-    public let id = UUID()
+    public var id: URL { url.standardized }
     public let label: String
     /// OTP Generator instance used by the account. Responsible for all cryptograhic operations.
     public let otpGenerator: OTPType
@@ -32,7 +32,7 @@ public struct Account<OTPType: OTP>: Codable, Hashable, Identifiable {
         // remove query items with no value (optional parameters)
         queryItems = queryItems.filter { $0.value != nil }
         components.queryItems = queryItems
-        return components.url!
+        return components.url!.standardized
     }
 
     public enum AccountError: LocalizedError {
@@ -125,12 +125,6 @@ public struct Account<OTPType: OTP>: Codable, Hashable, Identifiable {
             return Account(from: url)
         }
         return accounts
-    }
-    
-    // MARK: - Equatable
-
-    public static func == (lhs: Account, rhs: Account) -> Bool {
-        return lhs.url == rhs.url
     }
     
 }

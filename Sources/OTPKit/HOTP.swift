@@ -67,7 +67,7 @@ public final class HOTP: OTP {
     // MARK: Equatable
 
     public static func ==(lhs: HOTP, rhs: HOTP) -> Bool {
-        return lhs.secret == rhs.secret && lhs.algorithm == rhs.algorithm && lhs.digits == rhs.digits
+        return lhs.secret == rhs.secret && lhs.algorithm == rhs.algorithm && lhs.digits == rhs.digits && lhs.counter == rhs.counter
     }
 
     // MARK: Hashable
@@ -76,6 +76,7 @@ public final class HOTP: OTP {
         hasher.combine(secret)
         hasher.combine(algorithm)
         hasher.combine(digits)
+        hasher.combine(counter)
     }
     
 }
