@@ -77,7 +77,7 @@ final class TOTPTests: XCTestCase {
     
     func testInitFromURLBasic() {
         let url = URL(string: "otpauth://totp/foo?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ")!
-        let totp = TOTP(from: url)
+        let totp = try? TOTP(from: url)
         
         XCTAssertNotNil(totp)
         XCTAssertEqual(totp?.algorithm, Algorithm.sha1)
@@ -88,7 +88,7 @@ final class TOTPTests: XCTestCase {
     func testInitFromURLAdvanced() {
         let url = URL(string: "otpauth://totp/www.example.com:foo?secret=ahkzlrgopti4qd2u5olxmj6dj6d3ag6zxddbutu6oaukrkuup2r7wklw&algorithm=SHA256&digits=7&period=15&image=http%3A%2F%2Fwww.example.com%2Fimage")!
         
-        let totp = TOTP(from: url)
+        let totp = try? TOTP(from: url)
         
         XCTAssertNotNil(totp)
         XCTAssertEqual(totp?.algorithm, Algorithm.sha256)
@@ -99,21 +99,21 @@ final class TOTPTests: XCTestCase {
     
     func testBrokenURL() {
         let url = URL(string: "otpauth://totp/foo?secret=")!
-        let totp = TOTP(from: url)
+        let totp = try? TOTP(from: url)
         
         XCTAssertNil(totp)
     }
     
     func testWrongURLType() {
         let url = URL(string: "otpauth://hotp/foo?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ&algorithm=SHA1&digits=6")!
-        let totp = TOTP(from: url)
+        let totp = try? TOTP(from: url)
         
         XCTAssertNil(totp)
     }
     
     func testWrongURLScheme() {
         let url = URL(string: "http://totp/foo?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ")!
-        let totp = TOTP(from: url)
+        let totp = try? TOTP(from: url)
         
         XCTAssertNil(totp)
     }

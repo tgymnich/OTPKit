@@ -26,7 +26,7 @@ final class HOTPTests: XCTestCase {
     func testInitFromURLBasic() {
         let url = URL(string: "otpauth://hotp/foo?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ&algorithm=SHA1&digits=6")!
         
-        let hotp = HOTP(from: url)
+        let hotp = try? HOTP(from: url)
         
         XCTAssertNotNil(hotp)
         XCTAssertEqual(hotp?.algorithm, Algorithm.sha1)
@@ -37,7 +37,7 @@ final class HOTPTests: XCTestCase {
     func testInitFromURLAdvanced() {
         let url = URL(string: "otpauth://hotp/www.example.com:foo?secret=rk7xql2piogveotejq2ulv7d2aicbpzlh33xeaqnkqjck4iyz2cm6xzg&algorithm=SHA256&digits=7&period=30&counter=34&image=http%3A%2F%2Fwww.example.com%2Fimage")!
         
-        let hotp = HOTP(from: url)
+        let hotp = try? HOTP(from: url)
         
         XCTAssertNotNil(hotp)
         XCTAssertEqual(hotp?.algorithm, Algorithm.sha256)
@@ -48,21 +48,21 @@ final class HOTPTests: XCTestCase {
     
     func testBrokenURL() {
         let url = URL(string: "otpauth://hotp/foo?secret=&algorithm=SHA1&digits=6")!
-        let hotp = HOTP(from: url)
+        let hotp = try? HOTP(from: url)
         
         XCTAssertNil(hotp)
     }
     
     func testWrongURLType() {
         let url = URL(string: "otpauth://totp/foo?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ")!
-        let hotp = HOTP(from: url)
+        let hotp = try? HOTP(from: url)
     
         XCTAssertNil(hotp)
     }
     
     func testWrongURLScheme() {
         let url = URL(string: "http://hotp/foo?secret=GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ&algorithm=SHA1&digits=6")!
-        let hotp = HOTP(from: url)
+        let hotp = try? HOTP(from: url)
         
         XCTAssertNil(hotp)
     }

@@ -7,7 +7,7 @@
 import Foundation
 import CommonCrypto
 
-public enum Algorithm: RawRepresentable, Hashable, Codable {
+public enum Algorithm: RawRepresentable, CaseIterable, Hashable, Codable {
     case md5
     case sha1
     case sha224

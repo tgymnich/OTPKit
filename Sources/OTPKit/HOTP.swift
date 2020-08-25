@@ -8,7 +8,6 @@
 import Foundation
 import Base32
 
-
 public final class HOTP: OTP {
     public static let typeString = "hotp"
 
@@ -34,17 +33,18 @@ public final class HOTP: OTP {
         self.digits = digits ?? 6
     }
     
-    required public convenience init?(from url: URL) {
-        guard url.scheme == "otpauth", url.host == "hotp" else { return nil }
-        
-        guard let query = url.queryParameters else { return nil }
+    required public convenience init(from url: URL) throws {
+        guard url.scheme == "otpauth" else { throw URLDecodingError.invalidURLScheme(url.scheme) }
+        guard url.host == "hotp" else { throw URLDecodingError.invalidOTPType(url.host) }
+        guard let query = url.queryParameters else { throw URLDecodingError.invalidURLQueryParamters }
 
         var algorithm: Algorithm?
         if let algorithmString = query["algorithm"] {
-            algorithm = Algorithm(from: algorithmString)
+            guard let algo = Algorithm(from: algorithmString) else { throw URLDecodingError.invalidAlgorithm(algorithmString) }
+            algorithm = algo
         }
         
-        guard let secret = query["secret"]?.base32DecodedData, secret.count != 0 else { return nil }
+        guard let secret = query["secret"]?.base32DecodedData, secret.count != 0 else { throw URLDecodingError.invalidSecret }
 
         var digits: Int?
         if let digitsString = query["digits"], let value = Int(digitsString), value >= 6 {

@@ -35,10 +35,23 @@ public struct Account<OTPType: OTP>: Codable, Hashable, Identifiable {
         return components.url!
     }
 
-    public enum AccountError: LocalizedError {
+    public enum Error: LocalizedError {
         case accountAlreadyExists
+        
+        public var errorDescription: String? {
+            switch self {
+            case .accountAlreadyExists:
+                return "The account already exists"
+            }
+        }
+
+        public var failureReason: String? {
+            switch self {
+            case .accountAlreadyExists:
+                return "Accounts cannot share the same label and issuer"
+            }
+        }
     }
-    
     
     /// - Parameter label: The label is used to identify which account a key is associated with. It contains an account name, which is a URI-encoded string, optionally prefixed by an issuer string identifying the provider or service managing that account. This issuer prefix can be used to prevent collisions between different accounts with different providers that might be identified using the same account name, e.g. the user's email address.
     /// - Parameter otp: OTP instance used by this account.
@@ -60,13 +73,13 @@ public struct Account<OTPType: OTP>: Codable, Hashable, Identifiable {
     
     /// Used to initalize a account from a URL.
     /// - Parameter url: A url encoded like this: otpauth://TYPE/ISSUER:LABEL?PARAMETERS
-    public init?(from url: URL) {
+    public init(from url: URL) throws {
         // otpauth://TYPE/LABEL?PARAMETERS
-        guard url.scheme == "otpauth" else { return nil }
+        guard url.scheme == "otpauth" else { throw URLDecodingError.invalidURLScheme(url.scheme) }
                 
         let components = url.pathComponents.dropFirst().first?.split(separator: ":")
         
-        guard let labelComponent = components?.last else { return nil }
+        guard let labelComponent = components?.last else { throw URLDecodingError.invalidURLLabel(nil) }
         let label = String(labelComponent)
 
         var issuer: String?
@@ -79,7 +92,7 @@ public struct Account<OTPType: OTP>: Codable, Hashable, Identifiable {
             imageURL = URL(string: imageURLString)
         }
         
-        guard let otp = OTPType(from: url) else { return nil }
+        let otp = try OTPType(from: url)
 
         self.init(label: label, otp: otp, issuer: issuer, imageURL: imageURL)
     }
@@ -89,7 +102,7 @@ public struct Account<OTPType: OTP>: Codable, Hashable, Identifiable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let url = try container.decode(URL.self)
-        self.init(from: url)!
+        try self.init(from: url)
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -102,8 +115,7 @@ public struct Account<OTPType: OTP>: Codable, Hashable, Identifiable {
     /// Saves the account to a keychain
     /// - Parameter keychain
     public func save(to keychain: Keychain) throws {
-
-        guard (try? keychain.get(keychainKey)) == nil else { throw AccountError.accountAlreadyExists }
+        guard try keychain.get(keychainKey) == nil else { throw Error.accountAlreadyExists }
 
         try keychain
             .label(label)
@@ -122,7 +134,7 @@ public struct Account<OTPType: OTP>: Codable, Hashable, Identifiable {
         let items = keychain.allKeys()
         let accounts = try items.compactMap { key throws -> Account? in
             guard let urlString = try keychain.get(key), let url = URL(string: urlString) else { return nil }
-            return Account(from: url)
+            return try Account(from: url)
         }
         return accounts
     }

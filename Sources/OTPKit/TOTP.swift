@@ -7,6 +7,7 @@
 
 import Foundation
 
+
 public final class TOTP: OTP {
     public static let typeString = "totp"
 
@@ -52,17 +53,19 @@ public final class TOTP: OTP {
         }
     }
     
-    public required convenience init?(from url: URL) {
-        guard url.scheme == "otpauth", url.host == "totp" else { return nil }
+    public required convenience init(from url: URL) throws {
+        guard url.scheme == "otpauth" else { throw URLDecodingError.invalidURLScheme(url.scheme) }
+        guard url.host == "totp" else { throw URLDecodingError.invalidOTPType(url.host) }
         
-        guard let query = url.queryParameters else { return nil }
+        guard let query = url.queryParameters else { throw URLDecodingError.invalidURLQueryParamters }
 
         var algorithm: Algorithm?
         if let algorithmString = query["algorithm"] {
-            algorithm = Algorithm(from: algorithmString)
+            guard let algo = Algorithm(from: algorithmString) else { throw URLDecodingError.invalidAlgorithm(algorithmString) }
+            algorithm = algo
         }
         
-        guard let secret = query["secret"]?.base32DecodedData, secret.count != 0 else { return nil }
+        guard let secret = query["secret"]?.base32DecodedData, secret.count != 0 else { throw URLDecodingError.invalidSecret }
 
         var digits: Int?
         if let digitsString = query["digits"], let value = Int(digitsString), value >= 6 {

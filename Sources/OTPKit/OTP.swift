@@ -30,7 +30,7 @@ public protocol OTP: Codable, Hashable {
     
     /// Initalizes the OTP instance from a URL
     /// - Parameter url
-    init?(from url: URL)
+    init(from url: URL) throws
 }
 
 extension OTP {
