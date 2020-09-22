@@ -10,7 +10,7 @@ import PackageDescription
 let package = Package(
   name: "MyTool",
   dependencies: [
-    .package(url: "https://github.com/TG908/OTPKit.git", .from: "1.0.0"),
+    .package(url: "https://github.com/tgymnich/OTPKit.git", .from: "1.0.0"),
   ],
   targets: [
     .target(name: "MyTool", dependencies: ["OTPKit"]),
