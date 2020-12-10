@@ -14,6 +14,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build
-      run: swift build -v
-    - name: Run tests
-      run: swift test -v
+      run: swift build
+    - name: Test
+      run: swift test --enable-code-coverage
+    - name: Convert coverage report
+      run: xcrun llvm-cov export -format="lcov" .build/debug/OTPKitPackageTests.xctest/Contents/MacOS/OTPKitPackageTests -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
