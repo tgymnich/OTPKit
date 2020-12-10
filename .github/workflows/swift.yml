@@ -7,17 +7,29 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
-
+  macos:
     runs-on: macos-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Build
-      run: swift build
+      run: swift build --build-tests
     - name: Test
       run: swift test --enable-code-coverage
     - name: Convert coverage report
       run: xcrun llvm-cov export -format="lcov" .build/debug/OTPKitPackageTests.xctest/Contents/MacOS/OTPKitPackageTests -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
+
+  linux:
+    container:
+      image: swift:${{ matrix.linux }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        linux: [bionic, xenial, focal]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: swift build --build-tests --enable-test-discovery
+    - name: Test
+      run: swift test --enable-test-discovery
