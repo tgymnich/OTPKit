@@ -11,7 +11,7 @@ updates:
     schedule:
       interval: "monthly"
 
-  - package-ecosystem: "Swift"
+  - package-ecosystem: "swift"
     directory: "/"
     schedule:
       interval: "monthly"
